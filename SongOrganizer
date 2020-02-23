@@ -1,41 +1,46 @@
 #!/bin/bash
 
-#Este programa está diseñado para ordenarme las canciones que tengo en sus correspondientes carpetas,
-#por nombre de artista.
+#This program is designed to distribute songs in folder $1 among several folders present in my system (based on the name of the corresponding artist), whose location is $2. 
+#It copies them instead of moving them for security reasons.
 
-#Comandos requeridos: id3info
+#required: id3info
 
-declare -i numero
-numero=`ls -l | wc -l`
+declare -i number
+number=`ls -l $1 | wc -l`
 
 
-for i in {2..$numero}
-do 
-	titulo=`ls -l | sed -n ${i}p`
-	titulo=`$titest | cut -d " " -f 9-20`  #cortar el nombre del archivo desde ls, cogiendo los campos del 9 al 20 (por poner un upper bound, ningún titulo será tan grande)
- 	grupo=`id3info $titulo | grep "TPE1"`
-	grupo=${grupo##*:}  #cortar el nombre del grupo
-	letra=`echo $grupo | cut -c 1`  #cortar las letras del grupo y quedarse con la primera`
-	if [ letra = A ] || [ letra = B ] || [ letra = C ]; then
-		mv $titulo ../musica/1-C/$titulo
-	elif [ $letra = D ] || [ $letra = E ] || [ $letra = F ]; then
-		mv $titulo ../musica/D-F/$titulo
-	elif [ $letra = G ] || [ $letra = H ] || [ $letra = I ] || [ $letra = J ] || [ $letra = K ]; then
-		mv $titulo ../musica/G-K/$titulo
-	elif [ $letra = L ] || [ $letra = M ]; then
-		mv $titulo ../musica/L-M/$titulo
-	elif [ $letra = N ] || [ $letra = O ] || [ $letra = P ] || [ $letra = Q ]; then
-                mv $titulo ../musica/N-Q/$titulo
-	elif [ $letra = R ] || [ $letra = S ]; then
-                mv $titulo ../musica/R-S/$titulo
-	elif [ $letra = T ] || [ $letra = U ] || [ $letra = V ] || [ $letra = W ] || [ $letra = X ] || [ $letra = Y ] || [ $letra = Z ]; then
-                tresletras=#cortar las tres primeras
-		if [ $tresletras = The ]; then
-			mv $titulo ../musica/The/$titulo
+#we will iterate over every element of folder $1, picking the file name and the initial letter of the artist
+for i in `seq 2 $number`
+do
+	title=`ls -l $1 | sed -n ${i}p`
+	title=`echo $title | cut -d " " -f 9-20`  #cut the name of the file using the fields 9-20 (the number 20 is arbitrary, as we will not expect titles with more than ~8 words, but just in case) of ls
+ 	
+	artist=`id3info "$1/${title}" | grep "TPE1"`
+	artist=${artist##*": "}  #cortar el nombre del grupo
+	
+	letter=`echo ${artist} | cut -c 1`  #save the initial letter of the artist's name
+	
+
+	if [ $letter = "A" ] || [ $letter = "B" ] || [ $letter = "C" ]; then
+		cp "$1/$title" "$2/1-C/$title"
+	elif [ $letter = D ] || [ $letter = E ] || [ $letter = F ]; then
+		cp "$1/$title" "$2/D-F/$title"
+	elif [ $letter = G ] || [ $letter = H ] || [ $letter = I ] || [ $letter = J ] || [ $letter = K ]; then
+		cp "$1/$title" "$2/G-K/$title"
+	elif [ $letter = L ] || [ $letter = M ]; then
+		cp "$1/$title" "$2/L-M/$title"
+	elif [ $letter = N ] || [ $letter = O ] || [ $letter = P ] || [ $letter = Q ]; then
+                cp "$1/$title" "$2/N-Q/$title"
+	elif [ $letter = R ] || [ $letter = S ]; then
+                cp "$1/$title" "$2/R-S/$title"
+	elif [ $letter = T ] || [ $letter = U ] || [ $letter = V ] || [ $letter = W ] || [ $letter = X ] || [ $letter = Y ] || [ $letter = Z ]; then
+                threeletters=`echo ${artist} | cut -c 1-3` #cut the three initial letters
+		if [ $threeletters = The ]; then
+			cp "$1/$title" "$2/The/$title"
 		else
-			mv $titulo ../musica/T-Z/$titulo
+			cp "$1/$title" "$2/T-Z/$title"
 		fi		
 	else
-                mv $titulo ../musica/T-Z/$titulo
+                cp "$1/$title" "$2/1-C/$title"
 	fi
 done
