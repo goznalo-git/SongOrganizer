@@ -1,0 +1,41 @@
+#!/bin/bash
+
+#Este programa está diseñado para ordenarme las canciones que tengo en sus correspondientes carpetas,
+#por nombre de artista.
+
+#Comandos requeridos: id3info
+
+declare -i numero
+numero=`ls -l | wc -l`
+
+
+for i in {2..$numero}
+do 
+	titulo=`ls -l | sed -n ${i}p`
+	titulo=`$titest | cut -d " " -f 9-20`  #cortar el nombre del archivo desde ls, cogiendo los campos del 9 al 20 (por poner un upper bound, ningún titulo será tan grande)
+ 	grupo=`id3info $titulo | grep "TPE1"`
+	grupo=${grupo##*:}  #cortar el nombre del grupo
+	letra=`echo $grupo | cut -c 1`  #cortar las letras del grupo y quedarse con la primera`
+	if [ letra = A ] || [ letra = B ] || [ letra = C ]; then
+		mv $titulo ../musica/1-C/$titulo
+	elif [ $letra = D ] || [ $letra = E ] || [ $letra = F ]; then
+		mv $titulo ../musica/D-F/$titulo
+	elif [ $letra = G ] || [ $letra = H ] || [ $letra = I ] || [ $letra = J ] || [ $letra = K ]; then
+		mv $titulo ../musica/G-K/$titulo
+	elif [ $letra = L ] || [ $letra = M ]; then
+		mv $titulo ../musica/L-M/$titulo
+	elif [ $letra = N ] || [ $letra = O ] || [ $letra = P ] || [ $letra = Q ]; then
+                mv $titulo ../musica/N-Q/$titulo
+	elif [ $letra = R ] || [ $letra = S ]; then
+                mv $titulo ../musica/R-S/$titulo
+	elif [ $letra = T ] || [ $letra = U ] || [ $letra = V ] || [ $letra = W ] || [ $letra = X ] || [ $letra = Y ] || [ $letra = Z ]; then
+                tresletras=#cortar las tres primeras
+		if [ $tresletras = The ]; then
+			mv $titulo ../musica/The/$titulo
+		else
+			mv $titulo ../musica/T-Z/$titulo
+		fi		
+	else
+                mv $titulo ../musica/T-Z/$titulo
+	fi
+done
