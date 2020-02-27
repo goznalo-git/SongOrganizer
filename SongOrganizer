@@ -3,7 +3,7 @@
 #This program is designed to distribute songs in folder $1 among several folders present in my system (based on the name of the corresponding artist), whose location is $2. 
 #It copies them instead of moving them for security reasons.
 
-#required: id3info
+#required: id3info, metaflac
 
 declare -i number
 number=`ls -l $1 | wc -l`
@@ -14,12 +14,21 @@ for i in `seq 2 $number`
 do
 	title=`ls -l $1 | sed -n ${i}p`
 	title=`echo $title | cut -d " " -f 9-20`  #cut the name of the file using the fields 9-20 (the number 20 is arbitrary, as we will not expect titles with more than ~8 words, but just in case) of ls
- 	
-	artist=`id3info "$1/${title}" | grep "TPE1"`
-	artist=${artist##*": "}  #cortar el nombre del grupo
+	
+	echo "File $title is being moved from $1 to $2..."
+	
+	artistID3=`id3info "$1/${title}" | grep "TPE1"`
+	artistFLAC=$(metaflac --list "$1/${title}" 2> /dev/null | grep "ARTIST=")  #metaflac on .mp3 files spits out an error, we dismiss it this way
+	if [ "$artistID3" != "" ]; then
+		artist=${artistID3##*": "}  #cut the name of the artist
+	elif [ "$artistFLAC" != "" ]; then 
+		artist=${artistFLAC##*"="}  #cut the name of the artist
+	else
+		echo "Error: files in directory $1 must be either .flac or .mp3"
+	fi	
 	
 	letter=`echo ${artist} | cut -c 1`  #save the initial letter of the artist's name
-	
+
 
 	if [ $letter = "A" ] || [ $letter = "B" ] || [ $letter = "C" ]; then
 		cp "$1/$title" "$2/1-C/$title"
@@ -43,4 +52,7 @@ do
 	else
                 cp "$1/$title" "$2/1-C/$title"
 	fi
+
 done
+
+echo "Completed!"
