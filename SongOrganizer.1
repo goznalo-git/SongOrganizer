@@ -1,0 +1,19 @@
+.\" Manpage for SongOrganizer.
+.\" Contact gonzalo.contrerasaso(at)gmail.com to correct errors or typos.
+.TH man 1 "March 2020" "1.0" "SongOrganizer man page"
+.SH NAME
+SongOrganizer \- filter music based on Artist tag. 
+.SH SYNOPSIS
+SongOrganizer origin destination 
+.SH DESCRIPTION
+SongOrganizer is a simple script designed to distribute songs from a directory (origin) to a set of directories contained in (destination). The specific set of directories inside the latter must be introduced by hand, as each person has a different organizational scheme which can not be automatized. 
+
+Talking about modifications, it is also rather simple to make the program filter files depending on other tags; one only needs to understand the output of the id3info(1) and metaflac(1) commands, and how it is trimmed within the script.
+.SH OPTIONS
+The SongOrganizer does not take any options. However, you have to supply origin and destination.
+.SH SEE ALSO
+id3info(1), metaflac(1)
+.SH BUGS
+No known bugs.
+.SH AUTHOR
+Gonzalo Contreras Aso (gonzalo.contrerasaso (at) gmail.com)

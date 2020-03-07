@@ -5,31 +5,43 @@
 
 #required: id3info, metaflac
 
-declare -i number
-number=`ls -l $1 | wc -l`
+#Licensed under GPLv3
 
+#-----------Definitions-------------
+
+declare -i number
+
+#this function detects whether the songs are .mp3 and .flac, and fetches the artst's name 
+function detecttype {
+	extension=`echo $title | cut -d "." -f 2`	
+	if [ $extension = "mp3" ]; then
+		songID=`id3info "$1/${title}" | grep "TPE1"` 
+		artist=${songID##*": "}  #cut the name of the artist
+	elif [ $extension = "flac" ]; then
+		songID=`metaflac --list "$1/${title}" | grep "ARTIST="`
+		artist=${songID##*"="}  #cut the name of the artist
+	else
+		echo -e "Error: files in directory \e[00:32m$1\e[m must be either .flac or .mp3"
+	fi
+}
+
+#-----------Actual script------------
+
+number=`ls -l $1 | wc -l`
 
 #we will iterate over every element of folder $1, picking the file name and the initial letter of the artist
 for i in `seq 2 $number`
 do
-	title=`ls -l $1 | sed -n ${i}p`
+	title=`ls -l $1 | sed -n ${i}p` #pick a line from the list
 	title=`echo $title | cut -d " " -f 9-20`  #cut the name of the file using the fields 9-20 (the number 20 is arbitrary, as we will not expect titles with more than ~8 words, but just in case) of ls
 	
-	echo "File $title is being moved from $1 to $2..."
-	
-	artistID3=`id3info "$1/${title}" | grep "TPE1"`
-	artistFLAC=$(metaflac --list "$1/${title}" 2> /dev/null | grep "ARTIST=")  #metaflac on .mp3 files spits out an error, we dismiss it this way
-	if [ "$artistID3" != "" ]; then
-		artist=${artistID3##*": "}  #cut the name of the artist
-	elif [ "$artistFLAC" != "" ]; then 
-		artist=${artistFLAC##*"="}  #cut the name of the artist
-	else
-		echo "Error: files in directory $1 must be either .flac or .mp3"
-	fi	
-	
+	echo -e "Moving \e[00;31m$title\e[m from \e[00;32m$1\e[m to \e[00;32m$2\e[m \r"
+
+	detecttype $1
+
 	letter=`echo ${artist} | cut -c 1`  #save the initial letter of the artist's name
 
-
+	# This huge conditional part is the one which should be modified if we wanted the files to be copied to a different directory structure
 	if [ $letter = "A" ] || [ $letter = "B" ] || [ $letter = "C" ]; then
 		cp "$1/$title" "$2/1-C/$title"
 	elif [ $letter = D ] || [ $letter = E ] || [ $letter = F ]; then
