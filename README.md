@@ -37,3 +37,5 @@ After testing v0.0, I realised it was too flawed. This version correctly fixes t
 
 This is the original script. It hasn't been tested yet.
 
+## Version Beta 
+Marshmallon the fuking amo asepteme el commit
